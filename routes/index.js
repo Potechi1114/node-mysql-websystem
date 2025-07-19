@@ -1,3 +1,4 @@
+/*
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
@@ -50,8 +51,30 @@ router.post('/', function (req, res, next) {
       });
     });
 });
+// ...existing code...
 router.use('/signup', require('./signup'));
 router.use('/signin', require('./signin'));
 router.use('/logout', require('./logout'));
+router.use('/expenses', require('./expenses'));
+
+module.exports = router;
+*/
+const express = require('express');
+const router = express.Router();
+
+// 必要に応じてトップページや他のルートもここに記述
+router.get('/', function(req, res, next) {
+  const isAuth = req.isAuthenticated();
+  res.render('index', {
+    title: 'ToDo App',
+    isAuth: isAuth,
+  });
+});
+
+// 各機能のルーティングを登録
+router.use('/signup', require('./signup'));
+router.use('/signin', require('./signin'));
+router.use('/logout', require('./logout'));
+router.use('/expenses', require('./expenses'));
 
 module.exports = router;

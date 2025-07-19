@@ -1,9 +1,13 @@
-var express = require('express');
-var router = express.Router();
+const knex = require('../knex');
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+exports.findById = async function(id) {
+  const users = await knex('users').where({ id: id });
+  if (users.length === 0) throw new Error('User not found');
+  return users[0];
+};
 
-module.exports = router;
+exports.findByName = async function(name) {
+  const users = await knex('users').where({ name: name });
+  if (users.length === 0) throw new Error('User not found');
+  return users[0];
+};
