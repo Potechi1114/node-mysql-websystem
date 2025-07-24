@@ -1,44 +1,97 @@
+<!-- └─ views/index.ejs -->
+
 <!DOCTYPE html>
 <html>
-<head>
-  <title><%= title %></title>
-  <link rel='stylesheet' href='/stylesheets/style.css'/>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-</head>
-<body>
-<%- include('./error_messages'); %>
-<% if(isAuth) { %>
-<div class="container">
-  <div class="row">
-    <div class="col-md-6">
-      <form action="/" method="post">
-        <label>タスクの追加</label>
-        <input required type="text" name="add" placeholder="何をする?"/>
-        <input type="submit" value="追加"/>
-      </form>
-    </div>
-    <div class="col-md-6">
-      <ul>
-        <% for(let todo of todos){ %>
-          <li><span><%= todo.content %></span></li>
-        <% } %>
-      </ul>
-    </div>
-  </div>
-</div>
-<% } else { %>
-  <h1>Welcome to the TodoApp</h1>
-<a class="btn btn-primary" href="/signup" role="button">Sign up now!</a>
-<% } %>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
-        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
-        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
-        crossorigin="anonymous"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>経費管理システム</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+  </head>
+  <body class="container mt-4">
+    <h1>経費管理システム</h1>
+
+    <!-- 経費登録フォーム -->
+    <form method="POST" action="/expenses" class="mb-4">
+      <div class="form-row">
+        <div class="form-group col-md-3">
+          <label for="date">日付</label>
+          <input
+            type="date"
+            class="form-control"
+            id="date"
+            name="date"
+            required
+          />
+        </div>
+        <div class="form-group col-md-3">
+          <label for="category">カテゴリ</label>
+          <input
+            type="text"
+            class="form-control"
+            id="category"
+            name="category"
+            placeholder="例: 食費"
+            required
+          />
+        </div>
+        <div class="form-group col-md-2">
+          <label for="amount">金額</label>
+          <input
+            type="number"
+            class="form-control"
+            id="amount"
+            name="amount"
+            placeholder="1000"
+            required
+          />
+        </div>
+        <div class="form-group col-md-4">
+          <label for="memo">メモ</label>
+          <input
+            type="text"
+            class="form-control"
+            id="memo"
+            name="memo"
+            placeholder="会議費用"
+          />
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">追加</button>
+    </form>
+
+    <!-- 経費一覧テーブル -->
+    <table class="table table-bordered">
+      <thead class="thead-light">
+        <tr>
+          <th>日付</th>
+          <th>カテゴリ</th>
+          <th>金額</th>
+          <th>メモ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% expenses.forEach(exp => { %>
+          <tr>
+            <td>
+              <%= new Date(exp.date)
+                    .toLocaleDateString('ja-JP', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit'
+                    })
+              %>
+            </td>
+            <td><%= exp.category %></td>
+            <td>¥<%= exp.amount %></td>
+            <td><%= exp.memo %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  </body>
 </html>

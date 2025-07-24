@@ -1,80 +1,28 @@
-/*
-const express = require('express');
-const router = express.Router();
-const knex = require('../knex');
+// └─ routes/index.js
 
-router.get('/', function (req, res, next) {
-  const isAuth = req.isAuthenticated();
-  if (isAuth) {
-    const userId = req.user.id;
-    knex("tasks")
-      .select("*")
-      .where({user_id: userId})
-      .then(function (results) {
-        res.render('index', {
-          title: 'ToDo App',
-          todos: results,
-          isAuth: isAuth,
-        });
-      })
-      .catch(function (err) {
-        console.error(err);
-        res.render('index', {
-          title: 'ToDo App',
-          isAuth: isAuth,
-          errorMessage: [err.sqlMessage],
-        });
-      });
-  } else {
-    res.render('index', {
-      title: 'ToDo App',
-      isAuth: isAuth,
-    });
+var express = require('express');
+var router  = express.Router();
+var knex    = require('../knex');
+
+/* GET home page – 経費一覧を取得して描画 */
+router.get('/', async (req, res, next) => {
+  try {
+    const expenses = await knex('expenses').select('*');
+    res.render('index', { expenses });
+  } catch (err) {
+    next(err);
   }
 });
 
-router.post('/', function (req, res, next) {
-  const isAuth = req.isAuthenticated();
-  const userId = req.user.id;
-  const todo = req.body.add;
-  knex("tasks")
-    .insert({user_id: userId, content: todo})
-    .then(function () {
-      res.redirect('/')
-    })
-    .catch(function (err) {
-      console.error(err);
-      res.render('index', {
-        title: 'ToDo App',
-        isAuth: isAuth,
-        errorMessage: [err.sqlMessage],
-      });
-    });
+/* POST /expenses – フォームから経費を挿入し、一覧へリダイレクト */
+router.post('/expenses', async (req, res, next) => {
+  try {
+    const { date, category, amount, memo } = req.body;
+    await knex('expenses').insert({ date, category, amount, memo });
+    res.redirect('/');
+  } catch (err) {
+    next(err);
+  }
 });
-// ...existing code...
-router.use('/signup', require('./signup'));
-router.use('/signin', require('./signin'));
-router.use('/logout', require('./logout'));
-router.use('/expenses', require('./expenses'));
-
-module.exports = router;
-*/
-const express = require('express');
-const router = express.Router();
-
-// 必要に応じてトップページや他のルートもここに記述
-router.get('/', function(req, res, next) {
-  const isAuth = req.isAuthenticated();
-  res.render('index', {
-    title: 'ToDo App',
-    isAuth: isAuth,
-  });
-});
-
-// 各機能のルーティングを登録
-router.use('/signup', require('./signup'));
-router.use('/signin', require('./signin'));
-router.use('/logout', require('./logout'));
-router.use('/expenses', require('./expenses'));
 
 module.exports = router;
