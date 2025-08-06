@@ -1,11 +1,8 @@
-const knex = require("knex")({
-  client: "mysql",
-  connection: {
-    host: "127.0.0.1",
-    user: "root",      // ← ここは自分のMySQLユーザー名に
-    password: "password",  // ← パスワードを入力
-    database: "kakeibo"           // ← 既存のデータベース名
-  }
-});
+// knex.js
+require('dotenv').config();         // .env の内容を process.env にロード
 
-module.exports = knex;
+const env    = process.env.NODE_ENV || 'development';
+const config = require('./knexfile.js')[env];
+const knex   = require('knex')(config);
+
+module.exports = knex;              // 他のファイルで利用できるようエクスポート

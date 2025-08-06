@@ -1,31 +1,45 @@
-const express = require('express');
-const router = express.Router();
-const knex = require('../knex');
+// routes/expenses.js
 
-router.get('/', async function (req, res, next) {
-  const isAuth = req.isAuthenticated();
-  if (!isAuth) return res.redirect('/signin');
-  const userId = req.user.id;
-  const expenses = await knex('expenses').where({ user_id: userId }).orderBy('date', 'desc');
-  res.render('expenses', { title: '家計簿', isAuth, expenses });
+const express = require('express');
+const router  = express.Router();
+const knex    = require('../knex');
+const { ensureAuthenticated } = require('../config/passport');
+
+router.use((req, res, next) => ensureAuthenticated(req, res, next));
+
+// 経費一覧表示
+router.get('/', async (req, res, next) => {
+  try {
+    const expenses = await knex('expenses')
+      .where({ user_id: req.user.id })
+      .orderBy('date', 'desc');
+
+    res.render('expenses', {
+      title: '経費一覧',
+      expenses
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.post('/', async function (req, res, next) {
-  const isAuth = req.isAuthenticated();
-  if (!isAuth) return res.redirect('/signin');
-  const userId = req.user.id;
+// 経費追加
+router.post('/', async (req, res, next) => {
   const { date, category, amount, memo } = req.body;
-  if (!date || !category || !amount) {
-    const expenses = await knex('expenses').where({ user_id: userId }).orderBy('date', 'desc');
-    return res.render('expenses', {
-      title: '家計簿',
-      isAuth,
-      expenses,
-      errorMessage: ['全ての必須項目を入力してください']
+
+  try {
+    await knex('expenses').insert({
+      date,
+      category,
+      amount,
+      memo,
+      user_id: req.user.id
     });
+
+    res.redirect('/expenses');
+  } catch (err) {
+    next(err);
   }
-  await knex('expenses').insert({ user_id: userId, date, category, amount, memo });
-  res.redirect('/expenses');
 });
 
 module.exports = router;

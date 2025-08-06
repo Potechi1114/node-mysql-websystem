@@ -1,19 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="/">TodoApp</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"
-          aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-      <% if(isAuth){ %>
-        <li class="nav-item">
-          <a class="nav-link" href="/logout">Logout</a>
-        </li>
-      <% }else{ %>
-        <li class="nav-item">
-          <a class="nav-link" href="/signin">Sign in</a>
-        </li>
+  <a class="navbar-brand" href="/">経費管理</a>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav ml-auto">
+      <% if (!isAuth) { %>
+        <li class="nav-item"><a class="nav-link" href="/auth?mode=signin">ログイン</a></li>
+        <li class="nav-item"><a class="nav-link" href="/auth?mode=signup">新規登録</a></li>
+      <% } else { %>
+        <li class="nav-item"><a class="nav-link" href="/expenses">経費一覧</a></li>
+        <li class="nav-item"><a class="nav-link" href="/logout">ログアウト</a></li>
       <% } %>
     </ul>
   </div>

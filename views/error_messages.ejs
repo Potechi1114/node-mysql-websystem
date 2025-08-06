@@ -1,13 +1,11 @@
-<% if (typeof errorMessage === 'undefined') { var errorMessage = []; } %>
-<% if(errorMessage.length != 0){ %>
-  <div>
-    <strong>Warning!</strong> The form contains <%= errorMessage.length %> errors.
-  </div>
-  <div>
-    <ul>
-      <% for(let item of errorMessage){ %>
-        <li><%= item %></li>
-      <% } %>
-    </ul>
+<% if (errorMessages && errorMessages.length) { %>
+  <div class="container mt-3">
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% errorMessages.forEach(msg => { %>
+          <li><%= msg %></li>
+        <% }) %>
+      </ul>
+    </div>
   </div>
 <% } %>

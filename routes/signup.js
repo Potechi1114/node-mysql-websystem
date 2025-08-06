@@ -1,68 +1,51 @@
-const express = require('express');
-const router = express.Router();
-const knex = require("../knex");
-const bcrypt = require("bcrypt");
+const express = require('express')
+const router = express.Router()
+const knex = require('../knex')
+const bcrypt = require('bcrypt')
 
-router.get('/', function (req, res, next) {
-  const isAuth = req.isAuthenticated();
+router.get('/', (req, res) => {
   res.render('signup', {
-    title: 'Sign up',
-    isAuth: isAuth,
-  });
-});
+    title: 'Sign up'
+  })
+})
 
-router.post('/', function (req, res, next) {
-  const isAuth = req.isAuthenticated();
-  const username = req.body.username;
-  const password = req.body.password;
-  const repassword = req.body.repassword;
+router.post('/', async (req, res, next) => {
+  const { username, password, repassword } = req.body
 
-  knex("users")
-    .where({name: username})
-    .select("*")
-    .then(async function (result) {
-      if (result.length !== 0) {
-        res.render("signup", {
-          title: "Sign up",
-          errorMessage: ["このユーザ名は既に使われています"],
-          isAuth: isAuth,
-        })
-      } else if (password === repassword) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        knex("users")
-          .insert({name: username, password: hashedPassword})
-          .then(function () {
-            knex("users").where({name: username}).first().then(function(user) {
-              req.login(user, function(err) {
-                if (err) { return next(err); }
-                return res.redirect("/");
-              });
-            });
-          })
-          .catch(function (err) {
-            console.error(err);
-            res.render("signup", {
-              title: "Sign up",
-              errorMessage: [err.sqlMessage],
-              isAuth: isAuth,
-            });
-          });
-      } else {
-        res.render("signup", {
-          title: "Sign up",
-          errorMessage: ["パスワードが一致しません"],
-          isAuth: isAuth,
-        });
-      }
+  try {
+    // 1. 重複チェック
+    const exists = await knex('users')
+      .where({ name: username })
+      .first()
+
+    if (exists) {
+      req.flash('error', 'このユーザ名は既に使われています')
+      return res.redirect('/signup')
+    }
+
+    // 2. パスワード一致チェック
+    if (password !== repassword) {
+      req.flash('error', 'パスワードが一致しません')
+      return res.redirect('/signup')
+    }
+
+    // 3. ハッシュ化して挿入
+    const hashed = await bcrypt.hash(password, 10)
+    const [newId] = await knex('users').insert({
+      name: username,
+      password: hashed
     })
-    .catch(function (err) {
-      console.error(err);
-      res.render("signup", {
-        title: "Sign up",
-        errorMessage: [err.sqlMessage],
-        isAuth: isAuth,
-      });
-    });
-});
 
-module.exports = router;
+    // 4. 自動ログイン
+    const user = await knex('users').where({ id: newId }).first()
+    req.login(user, (err) => {
+      if (err) return next(err)
+      res.redirect('/')
+    })
+
+  } catch (err) {
+    next(err)
+  }
+})
+
+module.exports = router
