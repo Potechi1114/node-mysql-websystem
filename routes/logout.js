@@ -1,17 +1,21 @@
-const express = require('express')
-const router  = express.Router()
+const express = require('express');
+const router = express.Router();
 
-router.get('/', (req, res, next) => {
-  req.logout(err => {
-    if (err) return next(err)
+// ログアウト処理
+router.get('/', async (req, res) => {
+  try {
+    // Passport v0.6以降では logout は非同期関数
+    await req.logout();
 
-    req.session.destroy(err => {
-      if (err) console.error('Session destroy error:', err)
-      res.clearCookie('connect.sid', { path: '/' })
-      // ログアウト後に選択画面を表示
-      res.render('logout', { title: 'ログアウトしました' })
-    })
-  })
-})
+    // セッションを破棄
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid'); // セッションIDのクッキーも削除
+      res.redirect('/signin'); // ログアウト後にサインイン画面へ
+    });
+  } catch (err) {
+    console.error('Logout error:', err);
+    res.redirect('/'); // エラー時はトップへ
+  }
+});
 
-module.exports = router
+module.exports = router;
