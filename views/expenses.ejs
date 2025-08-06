@@ -1,0 +1,41 @@
+<!-- filepath: /workspaces/node-mysql-websystem/views/expenses.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+</head>
+<body>
+<%- include('./header'); %>
+<div class="container">
+  <h2>家計簿</h2>
+  <% if (typeof errorMessage !== 'undefined') { %>
+    <div class="alert alert-danger"><%= errorMessage[0] %></div>
+  <% } %>
+  <form action="/expenses" method="post" class="mb-3">
+    <div class="form-row">
+      <div class="col"><input required type="date" name="date" class="form-control"></div>
+      <div class="col"><input required type="text" name="category" class="form-control" placeholder="カテゴリ"></div>
+      <div class="col"><input required type="number" name="amount" class="form-control" placeholder="金額"></div>
+      <div class="col"><input type="text" name="memo" class="form-control" placeholder="メモ"></div>
+      <div class="col"><button type="submit" class="btn btn-primary">追加</button></div>
+    </div>
+  </form>
+  <table class="table table-striped">
+    <thead>
+      <tr><th>日付</th><th>カテゴリ</th><th>金額</th><th>メモ</th></tr>
+    </thead>
+    <tbody>
+      <% for(let exp of expenses) { %>
+        <tr>
+          <td><%= exp.date.toISOString().slice(0,10) %></td>
+          <td><%= exp.category %></td>
+          <td><%= exp.amount %></td>
+          <td><%= exp.memo %></td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

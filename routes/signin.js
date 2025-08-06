@@ -1,20 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const passport = require("passport");
+const passport = require('passport');
 
-router.get('/', function (req, res, next) {
-  const isAuth = req.isAuthenticated();
-  res.render("signin", {
-    title: "Sign in",
-    isAuth: isAuth,
-  });
+// サインインページの表示
+router.get('/', (req, res) => {
+  res.render('signin', { title: 'Sign In', message: req.flash('error') });
 });
 
+// ログイン処理
 router.post('/', passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/signin',
-    failureFlash: true,
-  }
-));
+  successRedirect: '/expenses',   // ログイン成功時のリダイレクト先
+  failureRedirect: '/signin',     // ログイン失敗時のリダイレクト先
+  failureFlash: true              // エラーメッセージ表示
+}));
 
 module.exports = router;

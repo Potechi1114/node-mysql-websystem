@@ -1,57 +1,13 @@
-const express = require('express');
-const router = express.Router();
-const knex = require('../knex');
+const express = require('express')
+const router  = express.Router()
 
-router.get('/', function (req, res, next) {
-  const isAuth = req.isAuthenticated();
-  if (isAuth) {
-    const userId = req.user.id;
-    knex("tasks")
-      .select("*")
-      .where({user_id: userId})
-      .then(function (results) {
-        res.render('index', {
-          title: 'ToDo App',
-          todos: results,
-          isAuth: isAuth,
-        });
-      })
-      .catch(function (err) {
-        console.error(err);
-        res.render('index', {
-          title: 'ToDo App',
-          isAuth: isAuth,
-          errorMessage: [err.sqlMessage],
-        });
-      });
-  } else {
-    res.render('index', {
-      title: 'ToDo App',
-      isAuth: isAuth,
-    });
+// ルートに来たら未認証時は /auth?mode=signin へリダイレクト
+// 認証済みはメイン画面を表示
+router.get('/', (req, res) => {
+  if (!req.isAuthenticated()) {
+    return res.redirect('/auth?mode=signin')
   }
-});
+  res.render('index', { title: 'メイン画面' })
+})
 
-router.post('/', function (req, res, next) {
-  const isAuth = req.isAuthenticated();
-  const userId = req.user.id;
-  const todo = req.body.add;
-  knex("tasks")
-    .insert({user_id: userId, content: todo})
-    .then(function () {
-      res.redirect('/')
-    })
-    .catch(function (err) {
-      console.error(err);
-      res.render('index', {
-        title: 'ToDo App',
-        isAuth: isAuth,
-        errorMessage: [err.sqlMessage],
-      });
-    });
-});
-router.use('/signup', require('./signup'));
-router.use('/signin', require('./signin'));
-router.use('/logout', require('./logout'));
-
-module.exports = router;
+module.exports = router
